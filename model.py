@@ -24,6 +24,8 @@ class Critic:
 		x = F.relu(self.fc2(x))
 		x = F.relu(self.fc3(x))
 
+		return x
+
 
 def Actor:
 
@@ -43,6 +45,8 @@ def Actor:
 		x = F.tanh(self.fc3(x))
 
 		x = torch.mul(x,self.action_max)
+
+		return x
 
 
 
