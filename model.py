@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class Critic:
 
 	def __init__(self, state_dim, action_dim):
@@ -27,7 +28,7 @@ class Critic:
 		return x
 
 
-def Actor:
+class Actor:
 
 	def __init__(self, state_dim, action_max):
 
