@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+imoprt torch.optim as optim
+from torch.autograd import Variable
+
 import numpy as np
 
 import model
@@ -8,10 +11,11 @@ import model
 BATCH_SIZE = 64
 LEARNING_RATE = 0.001
 SIGMA = 0.05
+GAMMA = 0.1
 
 
-def eps_gaussian_policy(mean, dev = 0.1, lim = 1):
-	sampled_action = np.random.normal(mean,dev)
+def eps_gaussian_policy(mean, dev=0.1, lim=1):
+	sampled_action = np.random.normal(mean, dev)
 	sampled_action = np.maximum(sampled_action, -lim * np.ones_like(sampled_action))
 	sampled_action = np.minimum(sampled_action, lim * np.ones_like(sampled_action))
 	return sampled_action
@@ -28,11 +32,20 @@ class Trainer:
 		self.actor = model.Actor(state_dim, action_max)
 		self.critic = model.Critic(state_dim, action_dim)
 
+		self.critic_optimizer = optim.Adam(self.critic.parameters(),LEARNING_RATE)
+
 	def optimize(self):
 		s,a,r,s1 = self.ram.sample(BATCH_SIZE)
 
 		# Sample action using eps-greedy critic policy
 		a1 = self.actor.forward(s1)
 		sampled_action = eps_gaussian_policy(a1, SIGMA, self.action_max)
-		y_pred = r + self.critic.forward(s1, sampled_action)
+		y_actual = r + GAMMA*self.critic.forward(s1, sampled_action)
+		y_pred = self.critic.forward(s,a)
+
+		#compute huber loss
+		loss = F.smooth_l1_loss(y_pred, y_actual)
+		self.critic_optimizer.zero_grad()
+		loss.backward()
+		self.critic_optimizer.step()
 
