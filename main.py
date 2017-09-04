@@ -17,8 +17,8 @@ print ' State Dimensions :- ', S_DIM
 print ' Action Dimensions :- ', A_DIM
 print ' Action Max :- ', A_MAX
 
-trainer = train.Trainer(S_DIM, A_DIM, A_MAX)
 ram = buffer.MemoryBuffer(MAX_BUFFER)
+trainer = train.Trainer(S_DIM, A_DIM, A_MAX, ram)
 
 for _ep in range(MAX_EPISODES):
 	prev_observation = env.reset()
