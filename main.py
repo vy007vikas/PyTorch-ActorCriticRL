@@ -29,6 +29,7 @@ for _ep in range(MAX_EPISODES):
 		state = np.float32(observation)
 
 		# get action based on observation
+		# convert numpy array to torch variable and convert the obtained value back
 		action = trainer.actor.forward(Variable(torch.from_numpy(state))).data.numpy()
 		new_observation , reward, done, info = env.step(action)
 
@@ -41,10 +42,8 @@ for _ep in range(MAX_EPISODES):
 		# push this exp in ram
 		ram.add(state, action, reward, new_state)
 
-		#break
-
 		# perform optimization
-		#trainer.optimize()
+		trainer.optimize()
 		if done:
 			break
 

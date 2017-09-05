@@ -12,13 +12,13 @@ class MemoryBuffer:
 
 	def sample(self, count):
 		batch = []
-		count = max(count, self.len)
+		count = min(count, self.len)
 		batch = random.sample(self.buffer, count)
 
-		s_arr = np.array([arr[0] for arr in batch])
-		a_arr = np.array([arr[1] for arr in batch])
-		r_arr = np.array([arr[2] for arr in batch])
-		s1_arr = np.array([arr[3] for arr in batch])
+		s_arr = np.float32([arr[0] for arr in batch])
+		a_arr = np.float32([arr[1] for arr in batch])
+		r_arr = np.float32([arr[2] for arr in batch])
+		s1_arr = np.float32([arr[3] for arr in batch])
 
 		return s_arr, a_arr, r_arr, s1_arr
 
