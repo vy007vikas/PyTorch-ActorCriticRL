@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class Critic(nn.module):
+class Critic(nn.Module):
 
 	def __init__(self, state_dim, action_dim):
 		super(Critic, self).__init__()
@@ -28,17 +28,18 @@ class Critic(nn.module):
 		return x
 
 
-class Actor(nn.module):
+class Actor(nn.Module):
 
-	def __init__(self, state_dim, action_max):
+	def __init__(self, state_dim, action_dim, action_max):
 		super(Actor, self).__init__()
 
 		self.state_dim = state_dim
+		self.action_dim = action_dim
 		self.action_max = action_max
 
 		self.fc1 = nn.Linear(state_dim,128)
 		self.fc2 = nn.Linear(128,64)
-		self.fc3 = nn.Linear(64,1)
+		self.fc3 = nn.Linear(64,action_dim)
 
 	def forward(self, state):
 		x = F.relu(self.fc1(state))
