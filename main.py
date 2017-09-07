@@ -28,9 +28,8 @@ for _ep in range(MAX_EPISODES):
 		env.render()
 		state = np.float32(observation)
 
-		# get action based on observation
-		# convert numpy array to torch variable and convert the obtained value back
-		action = trainer.actor.forward(Variable(torch.from_numpy(state))).data.numpy()
+		# get action based on observation, use exploration policy here
+		action = trainer.get_exploration_action(state)
 		new_observation , reward, done, info = env.step(action)
 
 		observation = new_observation

@@ -11,6 +11,11 @@ class MemoryBuffer:
 		self.len = 0
 
 	def sample(self, count):
+		"""
+		samples a random batch from the replay memory buffer
+		:param count: batch size
+		:return: batch (numpy array)
+		"""
 		batch = []
 		count = min(count, self.len)
 		batch = random.sample(self.buffer, count)
@@ -26,6 +31,14 @@ class MemoryBuffer:
 		return self.len
 
 	def add(self, s, a, r, s1):
+		"""
+		adds a particular transaction in the memory buffer
+		:param s: current state
+		:param a: action taken
+		:param r: reward received
+		:param s1: next state
+		:return:
+		"""
 		transition = (s,a,r,s1)
 		if self.len < self.maxSize:
 			self.len += 1
