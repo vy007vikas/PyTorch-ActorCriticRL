@@ -8,9 +8,9 @@ import numpy as np
 import model
 
 BATCH_SIZE = 64
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.005
 SIGMA = 0.05
-GAMMA = 0.1
+GAMMA = 0.999
 
 
 def gaussian_policy(mean, dev=0.1, lim=1.0):
@@ -32,6 +32,7 @@ class Trainer:
 		self.actor = model.Actor(self.state_dim, self.action_dim, self.action_max)
 		self.critic = model.Critic(self.state_dim, self.action_dim)
 
+		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(),LEARNING_RATE)
 		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(),LEARNING_RATE)
 
 	def optimize(self):
@@ -51,20 +52,29 @@ class Trainer:
 		a1 = self.actor.forward(s1).data.numpy()
 		sampled_action = Variable(torch.from_numpy(gaussian_policy(a1, SIGMA, self.action_max)))
 
+		sampled_action = self.actor.forward(s1)
+
 		# obtain next state value function in shape of [n,1] and convert to [n,]
 		next_val = torch.squeeze(self.critic.forward(s1, sampled_action))
 
 		y_actual = r + GAMMA*next_val
 		y_pred = self.critic.forward(s,a)
 
-		# print y_actual , y_pred
+		# print a1
+		# print y_pred
 
-		# compute huber loss
-		loss = F.smooth_l1_loss(y_pred, y_actual)
+		# compute huber loss, and update the critic
+		loss_critic = F.smooth_l1_loss(y_pred, y_actual)
 		self.critic_optimizer.zero_grad()
-		loss.backward()
+		loss_critic.backward()
 		self.critic_optimizer.step()
 
-		print 'Iteration :- ', self.iter, ' Loss :- ', loss.data.numpy()[0]
+		# compute actor loss and update it
+		loss_actor = -torch.sum(torch.log()*y_pred)
+		self.actor_optimizer.zero_grad()
+		loss_actor.backward()
+		self.actor_optimizer.step()
 
+		if self.iter % 50 == 0:
+			print 'Iteration :- ', self.iter, ' Loss :- ', loss.data.numpy()[0]
 		self.iter += 1

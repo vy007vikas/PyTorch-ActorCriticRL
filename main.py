@@ -8,7 +8,7 @@ import buffer
 
 env = gym.make('BipedalWalker-v2')
 
-MAX_EPISODES = 1
+MAX_EPISODES = 100
 MAX_STEPS = 50
 MAX_BUFFER = 256
 S_DIM = env.observation_space.shape[0]

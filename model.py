@@ -23,7 +23,7 @@ class Critic(nn.Module):
 		x = torch.cat((s1,a1),dim=1)
 
 		x = F.relu(self.fc2(x))
-		x = F.relu(self.fc3(x))
+		x = F.tanh(self.fc3(x))
 
 		return x
 
