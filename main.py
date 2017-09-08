@@ -6,7 +6,8 @@ from torch.autograd import Variable
 import train
 import buffer
 
-env = gym.make('BipedalWalker-v2')
+# env = gym.make('BipedalWalker-v2')
+env = gym.make('Pendulum-v0')
 
 MAX_EPISODES = 100
 MAX_STEPS = 50
@@ -30,16 +31,17 @@ for _ep in range(MAX_EPISODES):
 
 		# get action based on observation, use exploration policy here
 		action = trainer.get_exploration_action(state)
-		new_observation , reward, done, info = env.step(action)
+		new_observation, reward, done, info = env.step(action)
 
-		observation = new_observation
 		if done:
 			new_state = None
 		else:
-			new_state = np.float32(observation)
+			new_state = np.float32(new_observation)
 
 		# push this exp in ram
 		ram.add(state, action, reward, new_state)
+
+		observation = new_observation
 
 		# perform optimization
 		trainer.optimize()
