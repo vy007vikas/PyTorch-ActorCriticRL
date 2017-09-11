@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+EPS = 0.0001
 
 class Critic(nn.Module):
 
@@ -34,45 +35,46 @@ class Critic(nn.Module):
 		x = torch.cat((s1,a1),dim=1)
 
 		x = F.relu(self.fc2(x))
-		x = F.tanh(self.fc3(x))
+		x = self.fc3(x)
 
 		return x
 
 
 class Actor(nn.Module):
 
-	def __init__(self, state_dim, action_dim, action_max):
+	def __init__(self, state_dim, action_dim, action_lim):
 		"""
 		:param state_dim: Dimension of input state (int)
 		:param action_dim: Dimension of output action (int)
-		:param action_max: Bounds on action (limits action to [-action_max,action_max] )
+		:param action_lim: Used to limit action in [-action_lim,action_lim]
 		:return:
 		"""
 		super(Actor, self).__init__()
 
 		self.state_dim = state_dim
 		self.action_dim = action_dim
-		self.action_max = action_max
+		self.action_lim = action_lim
 
 		self.fc1 = nn.Linear(state_dim,128)
 		self.fc2 = nn.Linear(128,64)
-		self.action_mean = nn.Linear(64,action_dim)
-		self.action_sigma = nn.Linear(64,action_dim)
+		self.fc3 = nn.Linear(64,action_dim)
 
 	def forward(self, state):
 		"""
 		returns policy function Pi(s) obtained from actor network
+		this function is a gaussian prob distribution for all actions
+		with mean lying in (-1,1) and sigma lying in (0,1)
+		The sampled action can , then later be rescaled
 		:param state: Input state (Torch Variable : [n,state_dim] )
-		:return: Mean , std_dev(sigma) of the output action probability distribution (Torch Variables : [n,action_dim],[n,action_dim] )
+		:return: Output action (Torch Variable: [n,action_dim] )
 		"""
 		x = F.relu(self.fc1(state))
 		x = F.relu(self.fc2(x))
-		mean = F.tanh(self.action_mean(x))
-		sigma = F.relu(self.action_sigma(x))
+		action = F.tanh(self.fc3(x))
 
-		mean = torch.mul(mean, self.action_max)
+		action = action * self.action_lim
 
-		return mean, sigma
+		return action
 
 
 
