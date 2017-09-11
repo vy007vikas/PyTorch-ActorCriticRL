@@ -23,7 +23,7 @@ print ' Action Dimensions :- ', A_DIM
 print ' Action Max :- ', A_MAX
 
 ram = buffer.MemoryBuffer(MAX_BUFFER)
-trainer = train.Trainer(S_DIM, A_DIM, ram)
+trainer = train.Trainer(S_DIM, A_DIM, A_MAX, ram)
 
 for _ep in range(MAX_EPISODES):
 	observation = env.reset()
@@ -33,13 +33,9 @@ for _ep in range(MAX_EPISODES):
 
 		# get action based on observation, use exploration policy here
 		action = trainer.get_exploration_action(state)
-		rescaled_action = action*A_MAX
-		rescaled_action = np.maximum(rescaled_action, -A_MAX * np.ones_like(rescaled_action))
-		rescaled_action = np.minimum(rescaled_action, A_MAX * np.ones_like(rescaled_action))
 		# print '---------------'
 		# print rescaled_action
-		new_observation, reward, done, info = env.step(rescaled_action)
-		action = rescaled_action/A_MAX
+		new_observation, reward, done, info = env.step(action)
 
 		reward /= MAX_TOTAL_REWARD
 
