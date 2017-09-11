@@ -11,10 +11,10 @@ import utils
 import model
 
 BATCH_SIZE = 64
-LEARNING_RATE = 0.00001
+LEARNING_RATE = 0.001
 SIGMA = 0.05
-GAMMA = 0.999
-TAU = 0.001
+GAMMA = 0.99
+TAU = 0.01
 
 
 class Trainer:
@@ -45,15 +45,24 @@ class Trainer:
 		utils.hard_update(self.target_actor, self.actor)
 		utils.hard_update(self.target_critic, self.critic)
 
-	def get_exploration_action(self, network, state):
+	def get_exploitation_action(self, state):
 		"""
-		gets the action from input network added with exploration noise
+		gets the action from target actor added with exploration noise
 		:param state: state (Numpy array)
-		:param network: network which is used to compute action
 		:return: sampled action (Numpy array)
 		"""
 		state = Variable(torch.from_numpy(state))
-		action = network.forward(state)
+		action = self.actor.forward(state)
+		return action.data.numpy()
+
+	def get_exploration_action(self, state):
+		"""
+		gets the action from actor added with exploration noise
+		:param state: state (Numpy array)
+		:return: sampled action (Numpy array)
+		"""
+		state = Variable(torch.from_numpy(state))
+		action = self.actor.forward(state)
 		new_action = action.data.numpy() + (self.noise.sample() * self.action_lim)
 		return new_action
 
@@ -71,7 +80,7 @@ class Trainer:
 
 		# ---------------------- optimize critic ----------------------
 		# Use target actor exploitation policy here for loss evaluation
-		a2 = self.target_actor.foward(s2)
+		a2 = self.target_actor.forward(s2)
 		next_val = torch.squeeze(self.target_critic.forward(s2, a2))
 		# y_exp = r + gamma*Q'( s2, pi'(s2))
 		y_expected = r1 + GAMMA*next_val
@@ -90,10 +99,10 @@ class Trainer:
 		loss_actor.backward()
 		self.actor_optimizer.step()
 
-		utils.soft_update(self.target_actor, self.actor)
-		utils.soft_update(self.target_critic, self.critic)
+		utils.soft_update(self.target_actor, self.actor, TAU)
+		utils.soft_update(self.target_critic, self.critic, TAU)
 
-		if self.iter % 100 == 0:
-			print 'Iteration :- ', self.iter, ' Loss_actor :- ', loss_actor.data.numpy(),\
-				' Loss_critic :- ', loss_critic.data.numpy()
-		self.iter += 1
+		# if self.iter % 100 == 0:
+		# 	print 'Iteration :- ', self.iter, ' Loss_actor :- ', loss_actor.data.numpy(),\
+		# 		' Loss_critic :- ', loss_critic.data.numpy()
+		# self.iter += 1

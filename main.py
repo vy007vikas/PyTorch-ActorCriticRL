@@ -10,7 +10,7 @@ import buffer
 # env = gym.make('BipedalWalker-v2')
 env = gym.make('Pendulum-v0')
 
-MAX_EPISODES = 1000
+MAX_EPISODES = 200
 MAX_STEPS = 50
 MAX_BUFFER = 256
 MAX_TOTAL_REWARD = 300
@@ -27,17 +27,24 @@ trainer = train.Trainer(S_DIM, A_DIM, A_MAX, ram)
 
 for _ep in range(MAX_EPISODES):
 	observation = env.reset()
+	print 'EPISODE :- ', _ep
 	for r in range(MAX_STEPS):
 		env.render()
 		state = np.float32(observation)
 
-		# get action based on observation, use exploration policy here
-		action = trainer.get_exploration_action(state)
+		if _ep%50 == 0 or _ep>400:
+			# validate every 50th episode
+			action = trainer.get_exploitation_action(state)
+		else:
+			# get action based on observation, use exploration policy here
+			action = trainer.get_exploration_action(state)
 		# print '---------------'
 		# print rescaled_action
 		new_observation, reward, done, info = env.step(action)
 
-		reward /= MAX_TOTAL_REWARD
+		# dont update if this is validation
+		if _ep%50 == 0 or _ep>150:
+			continue
 
 		if done:
 			new_state = None
