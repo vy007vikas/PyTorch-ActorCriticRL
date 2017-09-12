@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+import shutil
 import torch.autograd as Variable
 
 
@@ -15,6 +17,7 @@ def soft_update(target, source, tau):
 			target_param.data * (1.0 - tau) + param.data * tau
 		)
 
+
 def hard_update(target, source):
 	"""
 	Copies the parameters from source network to target network
@@ -24,6 +27,20 @@ def hard_update(target, source):
 	"""
 	for target_param, param in zip(target.parameters(), source.parameters()):
 			target_param.data.copy_(param.data)
+
+
+def save_training_checkpoint(state, is_best, episode_count):
+	"""
+	Saves the models, with all training parameters intact
+	:param state:
+	:param is_best:
+	:param filename:
+	:return:
+	"""
+	filename = str(episode_count) + 'checkpoint.path.rar'
+	torch.save(state, filename)
+	if is_best:
+		shutil.copyfile(filename, 'model_best.pth.tar')
 
 
 # Based on http://math.stackexchange.com/questions/1287634/implementing-ornstein-uhlenbeck-in-matlab

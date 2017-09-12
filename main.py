@@ -13,9 +13,9 @@ import buffer
 env = gym.make('BipedalWalker-v2')
 # env = gym.make('Pendulum-v0')
 
-MAX_EPISODES = 1000
+MAX_EPISODES = 5000
 MAX_STEPS = 50
-MAX_BUFFER = 8192
+MAX_BUFFER = 100000
 MAX_TOTAL_REWARD = 300
 S_DIM = env.observation_space.shape[0]
 A_DIM = env.action_space.shape[0]
@@ -63,8 +63,14 @@ for _ep in range(MAX_EPISODES):
 		trainer.optimize()
 		if done:
 			break
+
+	# check memory consumption and clear memory
 	gc.collect()
 	# process = psutil.Process(os.getpid())
 	# print(process.memory_info().rss)
+
+	if _ep%100 == 0:
+		trainer.save_models(_ep)
+
 
 print 'Completed episodes'

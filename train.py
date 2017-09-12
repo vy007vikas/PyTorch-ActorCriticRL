@@ -10,7 +10,7 @@ import math
 import utils
 import model
 
-BATCH_SIZE = 1024
+BATCH_SIZE = 128
 LEARNING_RATE = 0.001
 GAMMA = 0.99
 TAU = 0.01
@@ -105,3 +105,25 @@ class Trainer:
 		# 	print 'Iteration :- ', self.iter, ' Loss_actor :- ', loss_actor.data.numpy(),\
 		# 		' Loss_critic :- ', loss_critic.data.numpy()
 		# self.iter += 1
+
+	def save_models(self, episode_count):
+		"""
+		saves the target actor and critic models
+		:param episode_count: the count of episodes iterated
+		:return:
+		"""
+		torch.save(self.target_actor.state_dict(), './Models/' + str(episode_count) + '_actor.pt')
+		torch.save(self.target_critic.state_dict(), './Models/' + str(episode_count) + '_critic.pt')
+		print 'Models saved successfully'
+
+	def load_models(self, episode):
+		"""
+		loads the target actor and critic models, and copies them onto actor and critic models
+		:param episode: the count of episodes iterated (used to find the file name)
+		:return:
+		"""
+		self.actor.load_state_dict(torch.load('./Models/' + str(episode) + '_actor.pt'))
+		self.critic.load_state_dict(torch.load('./Models/' + str(episode) + '_critic.pt'))
+		utils.hard_update(self.target_actor, self.actor)
+		utils.hard_update(self.target_critic, self.critic)
+		print 'Models loaded succesfully'
