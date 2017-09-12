@@ -10,9 +10,8 @@ import math
 import utils
 import model
 
-BATCH_SIZE = 64
+BATCH_SIZE = 1024
 LEARNING_RATE = 0.001
-SIGMA = 0.05
 GAMMA = 0.99
 TAU = 0.01
 
@@ -52,7 +51,7 @@ class Trainer:
 		:return: sampled action (Numpy array)
 		"""
 		state = Variable(torch.from_numpy(state))
-		action = self.actor.forward(state)
+		action = self.target_actor.forward(state).detach()
 		return action.data.numpy()
 
 	def get_exploration_action(self, state):
@@ -62,7 +61,7 @@ class Trainer:
 		:return: sampled action (Numpy array)
 		"""
 		state = Variable(torch.from_numpy(state))
-		action = self.actor.forward(state)
+		action = self.actor.forward(state).detach()
 		new_action = action.data.numpy() + (self.noise.sample() * self.action_lim)
 		return new_action
 
@@ -80,8 +79,8 @@ class Trainer:
 
 		# ---------------------- optimize critic ----------------------
 		# Use target actor exploitation policy here for loss evaluation
-		a2 = self.target_actor.forward(s2)
-		next_val = torch.squeeze(self.target_critic.forward(s2, a2))
+		a2 = self.target_actor.forward(s2).detach()
+		next_val = torch.squeeze(self.target_critic.forward(s2, a2).detach())
 		# y_exp = r + gamma*Q'( s2, pi'(s2))
 		y_expected = r1 + GAMMA*next_val
 		# y_pred = Q( s1, a1)

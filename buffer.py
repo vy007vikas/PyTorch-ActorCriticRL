@@ -6,7 +6,7 @@ from collections import deque
 class MemoryBuffer:
 
 	def __init__(self, size):
-		self.buffer = deque()
+		self.buffer = deque(maxlen=size)
 		self.maxSize = size
 		self.len = 0
 
@@ -40,8 +40,7 @@ class MemoryBuffer:
 		:return:
 		"""
 		transition = (s,a,r,s1)
-		if self.len < self.maxSize:
-			self.len += 1
-		else :
-			self.buffer.popleft()
+		self.len += 1
+		if self.len > self.maxSize:
+			self.len = self.maxSize
 		self.buffer.append(transition)

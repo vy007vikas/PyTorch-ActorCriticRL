@@ -3,16 +3,19 @@ import gym
 import numpy as np
 import torch
 from torch.autograd import Variable
+import os
+import psutil
+import gc
 
 import train
 import buffer
 
-# env = gym.make('BipedalWalker-v2')
-env = gym.make('Pendulum-v0')
+env = gym.make('BipedalWalker-v2')
+# env = gym.make('Pendulum-v0')
 
-MAX_EPISODES = 200
+MAX_EPISODES = 1000
 MAX_STEPS = 50
-MAX_BUFFER = 256
+MAX_BUFFER = 8192
 MAX_TOTAL_REWARD = 300
 S_DIM = env.observation_space.shape[0]
 A_DIM = env.action_space.shape[0]
@@ -32,19 +35,20 @@ for _ep in range(MAX_EPISODES):
 		env.render()
 		state = np.float32(observation)
 
-		if _ep%50 == 0 or _ep>400:
-			# validate every 50th episode
-			action = trainer.get_exploitation_action(state)
-		else:
-			# get action based on observation, use exploration policy here
-			action = trainer.get_exploration_action(state)
+		action = trainer.get_exploration_action(state)
+		# if _ep%5 == 0 or _ep>250:
+		# 	# validate every 50th episode
+		# 	action = trainer.get_exploitation_action(state)
+		# else:
+		# 	# get action based on observation, use exploration policy here
+		# 	action = trainer.get_exploration_action(state)
 		# print '---------------'
 		# print rescaled_action
 		new_observation, reward, done, info = env.step(action)
 
-		# dont update if this is validation
-		if _ep%50 == 0 or _ep>150:
-			continue
+		# # dont update if this is validation
+		# if _ep%50 == 0 or _ep>450:
+		# 	continue
 
 		if done:
 			new_state = None
@@ -59,5 +63,8 @@ for _ep in range(MAX_EPISODES):
 		trainer.optimize()
 		if done:
 			break
+	gc.collect()
+	# process = psutil.Process(os.getpid())
+	# print(process.memory_info().rss)
 
 print 'Completed episodes'

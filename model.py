@@ -1,8 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
-EPS = 0.0001
+EPS = 0.005
+
+def fanin_init(size, fanin=None):
+	fanin = fanin or size[0]
+	v = 1. / np.sqrt(fanin)
+	return torch.Tensor(size).uniform_(-v, v)
 
 class Critic(nn.Module):
 
@@ -18,10 +24,16 @@ class Critic(nn.Module):
 		self.action_dim = action_dim
 
 		self.fcs1 = nn.Linear(state_dim,128)
+		self.fcs1.weight.data = fanin_init(self.fcs1.weight.data.size())
+
 		self.fca1 = nn.Linear(action_dim,128)
+		self.fca1.weight.data = fanin_init(self.fca1.weight.data.size())
 
 		self.fc2 = nn.Linear(256,128)
+		self.fc2.weight.data = fanin_init(self.fc2.weight.data.size())
+
 		self.fc3 = nn.Linear(128,1)
+		self.fcs1.weight.data.uniform_(-EPS,EPS)
 
 	def forward(self, state, action):
 		"""
@@ -56,8 +68,13 @@ class Actor(nn.Module):
 		self.action_lim = action_lim
 
 		self.fc1 = nn.Linear(state_dim,128)
+		self.fc1.weight.data = fanin_init(self.fc1.weight.data.size())
+
 		self.fc2 = nn.Linear(128,64)
+		self.fc2.weight.data = fanin_init(self.fc2.weight.data.size())
+
 		self.fc3 = nn.Linear(64,action_dim)
+		self.fc3.weight.data.uniform_(-EPS,EPS)
 
 	def forward(self, state):
 		"""
