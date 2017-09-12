@@ -37,13 +37,13 @@ where beta = 0.001
 
 ### Pendulum-v0
 
-Below is the performance of the model after 70 iterations. [Full Video](https://www.youtube.com/watch?v=feXeEG_KaYw)
+Below is the performance of the model after 70 episodes. [Full Video](https://www.youtube.com/watch?v=feXeEG_KaYw)
 
 ![Pendulum-v0](https://j.gifs.com/O71nqL.gif)
 
 ### BiPedalWalker-v2
 
-Below is the performance of the model after 900 iterations. [Full Video](https://www.youtube.com/watch?v=-QU42vpBWIg)
+Below is the performance of the model after 900 episodes. [Full Video](https://www.youtube.com/watch?v=-QU42vpBWIg)
 
 ![BiPedalWalker-v2](https://j.gifs.com/r0Qx6k.gif)
 
