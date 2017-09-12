@@ -13,7 +13,7 @@ import model
 BATCH_SIZE = 128
 LEARNING_RATE = 0.001
 GAMMA = 0.99
-TAU = 0.01
+TAU = 0.001
 
 
 class Trainer:
