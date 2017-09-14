@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import print_function
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -102,8 +103,8 @@ class Trainer:
 		utils.soft_update(self.target_critic, self.critic, TAU)
 
 		# if self.iter % 100 == 0:
-		# 	print 'Iteration :- ', self.iter, ' Loss_actor :- ', loss_actor.data.numpy(),\
-		# 		' Loss_critic :- ', loss_critic.data.numpy()
+		# 	print('Iteration :- ', self.iter, ' Loss_actor :- ', loss_actor.data.numpy(),
+		# 		' Loss_critic :- ', loss_critic.data.numpy())
 		# self.iter += 1
 
 	def save_models(self, episode_count):
@@ -114,7 +115,7 @@ class Trainer:
 		"""
 		torch.save(self.target_actor.state_dict(), './Models/' + str(episode_count) + '_actor.pt')
 		torch.save(self.target_critic.state_dict(), './Models/' + str(episode_count) + '_critic.pt')
-		print 'Models saved successfully'
+		print('Models saved successfully')
 
 	def load_models(self, episode):
 		"""
@@ -126,4 +127,4 @@ class Trainer:
 		self.critic.load_state_dict(torch.load('./Models/' + str(episode) + '_critic.pt'))
 		utils.hard_update(self.target_actor, self.actor)
 		utils.hard_update(self.target_critic, self.critic)
-		print 'Models loaded succesfully'
+		print('Models loaded succesfully')
