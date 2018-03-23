@@ -19,7 +19,7 @@ MAX_BUFFER = 1000000
 MAX_TOTAL_REWARD = 300
 S_DIM = env.observation_space.shape[0]
 A_DIM = env.action_space.shape[0]
-A_MAX = env.action_space.high[0]
+A_MAX = float(env.action_space.high[0])
 
 print ' State Dimensions :- ', S_DIM
 print ' Action Dimensions :- ', A_DIM
