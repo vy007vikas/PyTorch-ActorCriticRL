@@ -70,19 +70,20 @@ class Trainer:
 		Samples a random batch from replay memory and performs optimization
 		:return:
 		"""
-		s1,a1,r1,s2 = self.ram.sample(BATCH_SIZE)
+		s1,a1,r1,s2,done = self.ram.sample(BATCH_SIZE)
 
 		s1 = Variable(torch.from_numpy(s1))
 		a1 = Variable(torch.from_numpy(a1))
 		r1 = Variable(torch.from_numpy(r1))
 		s2 = Variable(torch.from_numpy(s2))
+		done = Variable(torch.from_numpy(done))
 
 		# ---------------------- optimize critic ----------------------
 		# Use target actor exploitation policy here for loss evaluation
 		a2 = self.target_actor.forward(s2).detach()
 		next_val = torch.squeeze(self.target_critic.forward(s2, a2).detach())
 		# y_exp = r + gamma*Q'( s2, pi'(s2))
-		y_expected = r1 + GAMMA*next_val
+		y_expected = r1 + GAMMA*next_val*(1-done)
 		# y_pred = Q( s1, a1)
 		y_predicted = torch.squeeze(self.critic.forward(s1, a1))
 		# compute critic loss, and update the critic
@@ -112,9 +113,9 @@ class Trainer:
 		:param episode_count: the count of episodes iterated
 		:return:
 		"""
-		torch.save(self.target_actor.state_dict(), './Models/' + str(episode_count) + '_actor.pt')
-		torch.save(self.target_critic.state_dict(), './Models/' + str(episode_count) + '_critic.pt')
-		print 'Models saved successfully'
+		torch.save(self.target_actor.state_dict(), '.\\Models\\' + str(episode_count) + '_actor.pt')
+		torch.save(self.target_critic.state_dict(), '.\\Models\\' + str(episode_count) + '_critic.pt')
+		print('Models saved successfully')
 
 	def load_models(self, episode):
 		"""
@@ -122,8 +123,8 @@ class Trainer:
 		:param episode: the count of episodes iterated (used to find the file name)
 		:return:
 		"""
-		self.actor.load_state_dict(torch.load('./Models/' + str(episode) + '_actor.pt'))
-		self.critic.load_state_dict(torch.load('./Models/' + str(episode) + '_critic.pt'))
+		self.actor.load_state_dict(torch.load('.\\Models\\' + str(episode) + '_actor.pt'))
+		self.critic.load_state_dict(torch.load('.\\Models\\' + str(episode) + '_critic.pt'))
 		utils.hard_update(self.target_actor, self.actor)
 		utils.hard_update(self.target_critic, self.critic)
-		print 'Models loaded succesfully'
+		print('Models loaded succesfully')
