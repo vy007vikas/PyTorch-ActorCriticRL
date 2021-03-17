@@ -49,12 +49,10 @@ for _ep in range(MAX_EPISODES):
 		# if _ep%50 == 0 or _ep>450:
 		# 	continue
 
-		if done:
-			new_state = None
-		else:
-			new_state = np.float32(new_observation)
-			# push this exp in ram
-			ram.add(state, action, reward, new_state)
+		
+		new_state = np.float32(new_observation)
+		# push this exp in ram
+		ram.add(state, action, reward, new_state, done)
 
 		observation = new_observation
 
